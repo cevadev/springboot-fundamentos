@@ -66,11 +66,18 @@ public class FundamentosApplication implements CommandLineRunner {
 		saveUserInDB();
 		getUserByEmail();
 		getOrderedUsersByName();
+		getUserInfoQueryMethod();
+		getUserByNameAndEmail();
+		getUserByNameLike();
+		getUserByNameOrEmail();
+		getUsesByBirthdateInterval();
+		getUsersByNameLikeOrderByNameDesc();
+		getUsersContainingLikeOrderByNameDesc();
 	}
 
 	private void saveUserInDB(){
-		User user1 = new User("Aron", "john@gmail.com", LocalDate.of(2021, 06, 24));
-		User user2 = new User("Alberto", "alberto@gmail.com", LocalDate.of(2021, 06, 24));
+		User user1 = new User("Aron", "john@gmail.com", LocalDate.of(2020, 06, 24));
+		User user2 = new User("Wilberto", "alberto@gmail.com", LocalDate.of(2021, 06, 24));
 		List<User> users = Arrays.asList(user1, user2);
 
 		// para cada uno de los elementos (user) de la lista lo guardamos en la BD
@@ -88,6 +95,48 @@ public class FundamentosApplication implements CommandLineRunner {
 			// stream -> por cada elemento de la List mostrams el User)
 			.stream()
 				.forEach(user -> logger.info("User ordered: " + user));
+	}
+
+	private void getUserInfoQueryMethod(){
+		userRepository.findByName("Aron")
+				.stream()
+				.forEach(user -> logger.info("user by query method: "+ user));
+	}
+
+	private void getUserByNameAndEmail(){
+		logger.info("User: " + userRepository.findByNameAndEmail("Wilberto", "alberto@gmail.com")
+			.orElseThrow(()-> new RuntimeException("No se encontro el usuario")));
+	}
+
+	private void getUserByNameLike(){
+		userRepository.findByNameLike("A%")
+				.stream()
+				.forEach(user -> logger.info("Find user by name like A: " + user));
+	}
+
+	private void getUserByNameOrEmail(){
+		userRepository.findByNameOrEmail("Aron", null)
+				.stream()
+				.forEach(user -> logger.info("Find user by name or email: " + user));
+	}
+
+	private void getUsesByBirthdateInterval(){
+		userRepository.findByBirthDateBetween(LocalDate.of(2021, 06, 01),
+				LocalDate.of(2021,07,01))
+			.stream()
+			.forEach(user -> logger.info("User interval dates: " + user));
+	}
+
+	private void getUsersByNameLikeOrderByNameDesc(){
+		userRepository.findByNameLikeOrderByNameDesc("%o%")
+				.stream()
+				.forEach(user -> logger.info("User found with like and ordered desc " + user));
+	}
+
+	private void getUsersContainingLikeOrderByNameDesc(){
+		userRepository.findByNameContainingOrderByIdDesc("to")
+				.stream()
+				.forEach(user -> logger.info("Users found contaning like and ordered desc " + user));
 	}
 
 	private void ejemplosAnteriores(){
