@@ -73,6 +73,7 @@ public class FundamentosApplication implements CommandLineRunner {
 		getUsesByBirthdateInterval();
 		getUsersByNameLikeOrderByNameDesc();
 		getUsersContainingLikeOrderByNameDesc();
+		getUserByBirthDateAndEmail();
 	}
 
 	private void saveUserInDB(){
@@ -137,6 +138,13 @@ public class FundamentosApplication implements CommandLineRunner {
 		userRepository.findByNameContainingOrderByIdDesc("to")
 				.stream()
 				.forEach(user -> logger.info("Users found contaning like and ordered desc " + user));
+	}
+
+	private void getUserByBirthDateAndEmail(){
+		logger.info("User by Birthdate and Email: " +
+				userRepository.getAllByBirthDateAndEmail(LocalDate.of(2021,06,24),
+						"alberto@gmail.com")
+				.orElseThrow(()-> new RuntimeException("No se encontro el usuario")));
 	}
 
 	private void ejemplosAnteriores(){
