@@ -7,6 +7,7 @@ import com.fundamentosplatzi.springboot.fundamentos.component.ComponentDependenc
 import com.fundamentosplatzi.springboot.fundamentos.entity.User;
 import com.fundamentosplatzi.springboot.fundamentos.pojo.UserPojo;
 import com.fundamentosplatzi.springboot.fundamentos.repository.UserRepository;
+import com.fundamentosplatzi.springboot.fundamentos.service.UserService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,13 +41,17 @@ public class FundamentosApplication implements CommandLineRunner {
 	// Inyectamos el UserRepository como dependencia
 	private UserRepository userRepository;
 
+	// Inyectamos la dependencia UserService
+	private UserService userService;
+
 	// inyeccion de dependencia en el constructor
 	public FundamentosApplication(@Qualifier("componentSecondImplement") ComponentDependency componentDependency,
 								  MyBean myBean,
 								  MyBeanWithDependency myBeanWithDependency,
 								  MyBeanWithProperties myBeanWithProperties,
 								  UserPojo userPojo,
-								  UserRepository userRepository)
+								  UserRepository userRepository,
+								  UserService userService)
 	{
 		this.componentDependency = componentDependency;
 		this.myBean = myBean;
@@ -54,6 +59,7 @@ public class FundamentosApplication implements CommandLineRunner {
 		this.myBeanWithProperties = myBeanWithProperties;
 		this.userPojo = userPojo;
 		this.userRepository = userRepository;
+		this.userService = userService;
 	}
 
 	public static void main(String[] args) {
@@ -74,6 +80,9 @@ public class FundamentosApplication implements CommandLineRunner {
 		getUsersByNameLikeOrderByNameDesc();
 		getUsersContainingLikeOrderByNameDesc();
 		getUserByBirthDateAndEmail();
+
+		// Usando @Transaction
+		saveWithErrorTransactional();
 	}
 
 	private void saveUserInDB(){
@@ -145,6 +154,26 @@ public class FundamentosApplication implements CommandLineRunner {
 				userRepository.getAllByBirthDateAndEmail(LocalDate.of(2021,06,24),
 						"alberto@gmail.com")
 				.orElseThrow(()-> new RuntimeException("No se encontro el usuario")));
+	}
+
+	private void saveWithErrorTransactional(){
+		User test1 = new User("TestTransactional1", "TestTransactional1@domail.com", LocalDate.now());
+		User test2 = new User("TestTransactional2", "TestTransactional2@domail.com", LocalDate.now());
+		User test3 = new User("TestTransactional3", "TestTransactional3@domail.com", LocalDate.now());
+		User test4 = new User("TestTransactional4", "TestTransactional3@domail.com", LocalDate.now());
+		User test5 = new User("TestTransactional5", "TestTransactional5@domail.com", LocalDate.now());
+		List<User> users = Arrays.asList(test1, test2, test3, test4, test5);
+		try{
+			userService.saveTransactional(users);
+		}
+		catch(Exception e){
+			logger.error("Se produjo un error dentro del metodo transactional");
+		}
+
+		userService.getAllUsers()
+			.stream()
+				.forEach(user ->
+						logger.info(user));
 	}
 
 	private void ejemplosAnteriores(){
