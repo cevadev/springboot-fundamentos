@@ -31,7 +31,7 @@ public class User {
     private LocalDate birthDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
+    //@JsonManagedReference
     List<Post> posts = new ArrayList<Post>();
 
     public Long getId() {
